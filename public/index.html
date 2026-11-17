@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vantorium Base - Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #131316;
+            --panel-bg: rgba(26, 26, 30, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #6366f1;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        
+        /* Sol Menü */
+        sidebar { width: 260px; background: rgba(18, 18, 22, 0.9); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; }
+        .logo { font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--accent-color); }
+        .nav-item { padding: 12px 15px; border-radius: 8px; color: var(--text-muted); cursor: pointer; margin-bottom: 5px; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: rgba(99, 102, 241, 0.15); color: var(--accent-color); font-weight: 600; }
+
+        /* Ana İçerik Alanı */
+        main { flex: 1; display: flex; flex-direction: column; background: radial-gradient(circle at top right, #1e1b4b, transparent 50%); }
+        header { height: 70px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; background: var(--panel-bg); backdrop-filter: blur(12px); }
+        .content { padding: 30px; overflow-y: auto; flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* Kartlar ve Glassmorphism Paneller */
+        .card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 25px; backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .card h3 { margin-bottom: 15px; font-size: 1.1rem; color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        
+        input, textarea, button { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.95rem; }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent-color); }
+        button { background: var(--accent-color); border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        pre { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; font-size: 0.85rem; color: #34d399; overflow-x: auto; max-height: 200px; }
+    </style>
+</head>
+<body>
+
+    <sidebar>
+        <div class="logo">⚡ <span>Vantorium</span> Base</div>
+        <div class="nav-item active">📊 Konsol Paneli</div>
+        <div class="nav-item">🔐 Auth & Kullanıcılar</div>
+        <div class="nav-item">🔥 Firestore Veritabanı</div>
+        <div class="nav-item">📂 Storage (Depolama)</div>
+        <div class="nav-item">🔔 FCM Bildirimler</div>
+    </sidebar>
+
+    <main>
+        <header>
+            <h2>Proje Yönetim Konsolu</h2>
+            <span style="font-size: 0.9rem; color: #34d399;">● Sistem 7/24 Online</span>
+        </header>
+        
+        <div class="content">
+            <!-- Auth Test Paneli -->
+            <div class="card">
+                <h3>🔐 Auth (Kayıt / Giriş) Testi</h3>
+                <input type="email" id="authEmail" placeholder="E-posta adresi">
+                <input type="password" id="authPass" placeholder="Şifre">
+                <button onclick="registerUser()">Kayıt Ol</button>
+                <button onclick="loginUser()" style="background: #10b981;">Giriş Yap</button>
+                <pre id="authResult">Sonuçlar burada görünecek...</pre>
+            </div>
+
+            <!-- Firestore Veritabanı Testi -->
+            <div class="card">
+                <h3>🔥 Firestore Veri Ekle</h3>
+                <input type="text" id="colName" placeholder="Koleksiyon Adı (örn: mesajlar)">
+                <textarea id="docData" placeholder='{"mesaj": "Selam Kral", "kod": 31}' rows="3"></textarea>
+                <button onclick="addDocument()">Doküman Ekle</button>
+                <pre id="dbResult">Veriler burada görünecek...</pre>
+            </div>
+
+            <!-- Storage Depolama Testi -->
+            <div class="card">
+                <h3>📂 Storage Dosya Yükleme</h3>
+                <input type="file" id="uploadFile">
+                <button onclick="uploadFile()">Dosyayı Sunucuya Yükle</button>
+                <pre id="storageResult">Dosya linki burada görünecek...</pre>
+            </div>
+
+            <!-- FCM Bildirim Testi -->
+            <div class="card">
+                <h3>🔔 FCM Tarzı Canlı Bildirim</h3>
+                <input type="text" id="notifTitle" placeholder="Bildirim Başlığı">
+                <input type="text" id="notifBody" placeholder="Bildirim Mesajı">
+                <button onclick="sendNotification()" style="background: #f59e0b;">Tüm Cihazlara Bildirim Gönder</button>
+                <pre id="notifResult">WebSocket Bağlantısı Bekleniyor...</pre>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // WebSocket Realtime Bağlantısı
+        const ws = new WebSocket(`ws://${window.location.host}`);
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const notifBox = document.getElementById('notifResult');
+            notifBox.innerText = `[CANLI ANLIK GELEN]:\n` + JSON.stringify(data, null, 2);
+        };
+
+        async function registerUser() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPass').value;
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+            const data = await res.json();
+            document.getElementById('authResult').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPass').value;
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+            const data = await res.json();
+            document.getElementById('authResult').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function addDocument() {
+            const col = document.getElementById('colName').value;
+            const rawData = document.getElementById('docData').value;
+            let parsedData;
+            try { parsedData = JSON.parse(rawData); } catch(e) { alert("Geçersiz JSON formatı!"); return; }
+
+            const res = await fetch(`/api/db/${col}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(parsedData)
+            });
+            const data = await res.json();
+            document.getElementById('dbResult').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('uploadFile').files[0];
+            if (!fileInput) { alert("Dosya seç!"); return; }
+            const formData = new FormData();
+            formData.append('file', fileInput);
+
+            const res = await fetch('/api/storage/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            document.getElementById('storageResult').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function sendNotification() {
+            const title = document.getElementById('notifTitle').value;
+            const body = document.getElementById('notifBody').value;
+            const res = await fetch('/api/fcm/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title, body})
+            });
+            const data = await res.json();
+            document.getElementById('notifResult').innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
